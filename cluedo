@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cluedo Tracker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .cell-select {
+      @apply border rounded px-2 py-1 text-center cursor-pointer;
+    }
+    .status-none { background-color: white; }
+    .status-yes { background-color: #bbf7d0; } /* green */
+    .status-no { background-color: #fecaca; } /* red */
+    .status-maybe { background-color: #fde68a; } /* yellow */
+  </style>
+</head>
+<body class="bg-gray-100 p-4">
+  <h1 class="text-2xl font-bold mb-4">Cluedo Crib Sheet</h1>
+  <div id="tracker" class="overflow-auto"></div>
+
+  <script>
+    const players = ['You', 'Player 1', 'Player 2', 'Player 3'];
+    const suspects = ['Miss Scarlett', 'Professor Plum', 'Mrs. Peacock', 'Reverend Green', 'Colonel Mustard', 'Dr. Orchid'];
+    const weapons = ['Candlestick', 'Dagger', 'Lead Pipe', 'Revolver', 'Rope', 'Wrench'];
+    const rooms = ['Kitchen', 'Ballroom', 'Conservatory', 'Dining Room', 'Billiard Room', 'Library', 'Lounge', 'Hall', 'Study'];
+
+    const cardSections = [
+      { title: 'Suspects', cards: suspects },
+      { title: 'Weapons', cards: weapons },
+      { title: 'Rooms', cards: rooms },
+    ];
+
+    const tracker = document.getElementById('tracker');
+
+    function createTable() {
+      const table = document.createElement('table');
+      table.className = 'min-w-full border-collapse';
+
+      const thead = document.createElement('thead');
+      const headRow = document.createElement('tr');
+      headRow.innerHTML = `<th class="border px-2 py-1 bg-gray-200">Card</th>` + players.map(p => `<th class="border px-2 py-1 bg-gray-200">${p}</th>`).join('');
+      thead.appendChild(headRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement('tbody');
+
+      cardSections.forEach(section => {
+        const sectionRow = document.createElement('tr');
+        sectionRow.innerHTML = `<td colspan="${players.length + 1}" class="bg-gray-300 font-semibold px-2 py-1">${section.title}</td>`;
+        tbody.appendChild(sectionRow);
+
+        section.cards.forEach(card => {
+          const row = document.createElement('tr');
+          row.innerHTML = `<td class="border px-2 py-1">${card}</td>`;
+          players.forEach(() => {
+            const td = document.createElement('td');
+            td.className = 'cell-select status-none';
+            td.textContent = '';
+            td.dataset.status = 'none';
+            td.addEventListener('click', () => {
+              const statuses = ['none', 'yes', 'no', 'maybe'];
+              const symbols = ['', '✅', '❌', '?'];
+              const current = td.dataset.status;
+              const nextIndex = (statuses.indexOf(current) + 1) % statuses.length;
+              const next = statuses[nextIndex];
+              td.dataset.status = next;
+              td.textContent = symbols[nextIndex];
+              td.className = `cell-select status-${next}`;
+            });
+            row.appendChild(td);
+          });
+          tbody.appendChild(row);
+        });
+      });
+
+      table.appendChild(tbody);
+      return table;
+    }
+
+    tracker.appendChild(createTable());
+  </script>
+</body>
+</html>
